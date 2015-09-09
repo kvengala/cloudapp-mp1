@@ -1,14 +1,23 @@
 import java.io.File;
 import java.lang.reflect.Array;
 import java.security.MessageDigest;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.StringTokenizer;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MP1 {
     Random generator;
     String userName;
     String inputFileName;
-    String delimiters = " \t,;.?!-:@[](){}_*/";
+    Map<String,Integer> hashmap = new HashMap<String,Integer>();
+    String delimiters = " \t,;+[0-9]%'&\".?!-:@\\[\\]\\(\\)\\{\\}_*/";
     String[] stopWordsArray = {"i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours",
             "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its",
             "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that",
@@ -50,14 +59,55 @@ public class MP1 {
     }
 
     public String[] process() throws Exception {
-        String[] ret = new String[20];
-       
-        //TODO
+    BufferedReader br = new BufferedReader(new FileReader(inputFileName));
+    String Currline;
+   // Pattern pattern = Pattern.compile(delimiters);
+    
+    while((Currline = br.readLine() )!=null)
+             {  
+                StringTokenizer st = new StringTokenizer(Currline,delimiters);
+               String [] words = Currline.split(delimiters);
+               
+            while(st.hasMoreTokens())
+            {
+             String word = st.nextToken().toString();
+        	   //	System.out.println(word);
+	        if(hashmap.containsKey(word) )
+                       	{ 
+	        	 int num = hashmap.get(word);
+	        	 num = num +1;
+	        	 hashmap.put(word,num);
+			}
+		else{
+			hashmap.put(word,1);
+		    }
+            }
+        	
+            }
+            int j=0;
+            String[] ret = new String[20];
+ 			for(Map.Entry<String,Integer> entry : hashmap.entrySet())
+ 			{
+ 				ret[j] = entry.getKey();
+                                j++;
+ 				if(j >19)
+                                   break;
 
-        return ret;
+ 			}
+ 			
+    		br.close();
+    		return ret;
     }
 
     public static void main(String[] args) throws Exception {
+    	File file = new File("./output.txt");
+    	file.createNewFile();
+    	
+    	
+    	
+        FileWriter fw = new FileWriter(file.getAbsoluteFile(),true); 
+        
+    	BufferedWriter bw = new BufferedWriter(fw);
         if (args.length < 1){
             System.out.println("MP1 <User ID>");
         }
@@ -67,8 +117,11 @@ public class MP1 {
             MP1 mp = new MP1(userName, inputFileName);
             String[] topItems = mp.process();
             for (String item: topItems){
+            	bw.write(item+"\n");
+            	//bw.close();
                 System.out.println(item);
             }
+           bw.close();
         }
     }
 }
